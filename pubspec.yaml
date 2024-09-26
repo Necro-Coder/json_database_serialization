@@ -1,7 +1,7 @@
 name: json_database_serialization
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+homepage: https://github.com/Necro-Coder/json_database_serialization.git
 
 environment:
   sdk: ^3.5.3
@@ -13,12 +13,12 @@ dependencies:
 
   reflectable: ^4.0.10
   ansicolor: ^2.0.3
-  sqflite_simple_dao_backend: ^1.0.1
+  sqflite_simple_dao_backend: ^1.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

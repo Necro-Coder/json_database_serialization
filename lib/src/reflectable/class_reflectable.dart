@@ -1,18 +1,19 @@
-import 'package:reflectable/reflectable.dart';
+// import 'package:reflectable/reflectable.dart';
+//
+// class ClassReflectable extends Reflectable {
+//   const ClassReflectable()
+//       : super(
 
-class ClassReflectable extends Reflectable {
-  const ClassReflectable()
-      : super(
-            invokingCapability,
-            declarationsCapability,
-            newInstanceCapability,
-            admitSubtypeCapability,
-            correspondingSetterQuantifyCapability,
-            declarationsCapability,
-            delegateCapability,
-            instanceInvokeCapability,
-            metadataCapability,
-            libraryDependenciesCapability);
-}
-
-const reflector = ClassReflectable();
+//             invokingCapability,
+//             declarationsCapability,
+//             reflectedTypeCapability,
+//             newInstanceCapability,
+//             typeCapability,
+//             typeRelationsCapability,
+//             declarationsCapability,
+//             delegateCapability,
+//             instanceInvokeCapability,
+//             metadataCapability);
+// }
+//
+// const reflector = ClassReflectable();

@@ -7,7 +7,7 @@ import 'main.reflectable.dart';
 
 void main() async {
   initializeReflectable();
-  await init(fullPath: 'C:\\Users\\Practicas\\StudioProjects\\json_database_serialization\\example', databaseModels: [Model()]);
+  await init(databaseModels: [Model]);
   runApp(const MyApp());
 }
 
@@ -65,6 +65,19 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
+
+    Model model = Model.all(
+      password: 'password',
+      actualPrice: 10.3,
+      age: 15,
+      email: 'email@correo.com',
+      isAdmin: true,
+      status: 'active',
+      username: 'admin'
+    );
+
+    model.insert();
+
 
     setState(() {
       // This call to setState tells the Flutter framework that something has

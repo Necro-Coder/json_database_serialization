@@ -1,8 +1,9 @@
 import 'package:json_database_serialization/src/errors_control/database_exception.dart';
 import 'package:reflectable/reflectable.dart';
+import 'package:sqflite_simple_dao_backend/database/database/reflectable.dart';
+import 'package:sqflite_simple_dao_backend/database/database/sql_builder.dart';
 import 'package:sqflite_simple_dao_backend/database/params/constants.dart';
 
-import '../../reflectable/class_reflectable.dart';
 import '../content.dart';
 
 @reflector
@@ -15,41 +16,69 @@ class BaseDao extends ModelDao with SerializableModel {
     _checkProperties();
   }
 
-  static final Map<String, String> _fields = {};
+  int? id;
 
-  static final Iterable<String> _names = _fields.keys;
+  DateTime? createdAt;
+  DateTime? updatedAt;
 
-  static final List<String> _primary = [];
-  static final List<String> _exception = [];
+  final Map<String, String> fields = {};
 
-  static final List<String> _foreign = [];
+  final List<String> names = [];
 
-  static List<String> get foreign => _foreign;
+  final List<String> primary = [];
+  final List<String> exception = [];
 
-  static Map<String, String> get fields => _fields;
+  final List<String> foreign = [];
 
-  static Iterable<String> get names => _names;
+  List<String> propertiesExceptions = [
+    'id', 'createdAt', 'updatedAt',
+    'fields', 'names', 'primary', 'foreign', 'exception', 'propertiesExceptions'
+  ];
 
-  static List<String> get primary => _primary;
+  Future<dynamic> selectAll<O>() async {
+    SqlBuilder sqlBuilder =
+        SqlBuilder().querySelect().queryFrom(table: getTableName(this));
 
-  static List<String> get exception => _exception;
+    return await select<O>(sqlBuilder: sqlBuilder, model: this) as O;
+  }
+
+  @override
+  Future<int> insert() async {
+    try {
+      List all = await selectAll();
+
+      id = all.last.id + 1;
+    } catch(e) {
+      id = 0;
+    }
+    return super.insert();
+  }
 
   void _checkProperties() {
     Type classType = runtimeType;
-    List<String> fields = getProperties(classType: classType);
+    List<String> classFields = getProperties(classType: classType);
+    names.addAll(fields.keys);
 
-    for (var field in fields) {
+    for (var field in classFields) {
       _setIgnoredFiles(field);
       _fieldConstruction(field);
       _setPrimaryKeys(field);
     }
 
-    fields.removeWhere(
-      (element) => _exception.contains(element),
+    fields.addAll({
+      'id': Constants.integer,
+      'createdAt': Constants.datetime,
+      'updatedAt': Constants.datetime
+    });
+
+    primary.add('id');
+
+    classFields.removeWhere(
+      (element) => exception.contains(element) ||propertiesExceptions.contains(element),
     );
 
-    for (var field in fields) {
-      if (!_fields.containsKey(field)) {
+    for (var field in classFields) {
+      if (!fields.containsKey(field)) {
         throw DatabaseException(
             'The field ($field) do not have DataType declared for the model $runtimeType');
       }
@@ -61,8 +90,8 @@ class BaseDao extends ModelDao with SerializableModel {
 
     for (var fieldProperty in fieldProperties) {
       if (fieldProperty is Ignored) {
-        if (!_exception.contains(field)) {
-          _exception.add(field);
+        if (!exception.contains(field)) {
+          exception.add(field);
         }
       }
     }
@@ -73,8 +102,8 @@ class BaseDao extends ModelDao with SerializableModel {
 
     for (var fieldProperty in fieldProperties) {
       if (fieldProperty is Primary) {
-        if (!_primary.contains(field) && !_exception.contains(field)) {
-          _primary.add(field);
+        if (!primary.contains(field) && !exception.contains(field)) {
+          primary.add(field);
         }
       }
     }
@@ -84,7 +113,7 @@ class BaseDao extends ModelDao with SerializableModel {
     List fieldProperties = _getMetadata(field);
     Map<String, String> auxFields = {};
     for (var fieldProperty in fieldProperties) {
-      if (!_exception.contains(field)) {
+      if (!exception.contains(field)) {
         if (fieldProperty is DataType) {
           DataType property = fieldProperty;
           String type = property.type;
@@ -98,8 +127,8 @@ class BaseDao extends ModelDao with SerializableModel {
       }
     }
 
-    if (auxFields.isNotEmpty && !_fields.containsKey(auxFields.keys.first)) {
-      _fields.addAll(auxFields);
+    if (auxFields.isNotEmpty && !fields.containsKey(auxFields.keys.first)) {
+      fields.addAll(auxFields);
     }
   }
 
@@ -110,12 +139,17 @@ class BaseDao extends ModelDao with SerializableModel {
   }
 
   List _getMetadata(String field) {
-    ClassMirror classMirror = reflector.reflectType(runtimeType) as ClassMirror;
-    var fieldMirror = classMirror.declarations[field] as VariableMirror?;
-    if (fieldMirror == null) {
-      throw DatabaseException(
-          'There are no declarations on the model $runtimeType');
+    if (!propertiesExceptions.contains(field)) {
+      ClassMirror classMirror =
+          reflector.reflectType(runtimeType) as ClassMirror;
+      var fieldMirror = classMirror.declarations[field] as VariableMirror?;
+      if (fieldMirror == null) {
+        throw DatabaseException(
+            'There are no declarations on the model $runtimeType for the field $field');
+      }
+      return fieldMirror.metadata;
     }
-    return fieldMirror.metadata;
+
+    return [];
   }
 }

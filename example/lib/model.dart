@@ -8,20 +8,13 @@ class Model extends BaseDao {
   Model.db() : super.db();
 
   Model.all(
-      {this.id,
-      this.username,
+      {this.username,
       this.age,
       this.actualPrice,
       this.isAdmin,
       this.password,
       this.email,
-      this.createdAt,
-      this.updatedAt,
       this.status});
-
-  @Primary()
-  @AutoIncrement()
-  int? id;
 
   @DataType(type: 'varchar(255)')
   String? username;
@@ -46,10 +39,4 @@ class Model extends BaseDao {
   @DataType(type: 'varchar(255)')
   @Default(value: 'active')
   String? status;
-
-  @Ignored()
-  DateTime? createdAt;
-
-  @DataType(type: 'datetime')
-  DateTime? updatedAt;
 }
