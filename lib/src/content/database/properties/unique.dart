@@ -1,0 +1,3 @@
+class Unique {
+  const Unique();
+}

@@ -1,0 +1,3 @@
+class DatabaseModel {
+  const DatabaseModel();
+}

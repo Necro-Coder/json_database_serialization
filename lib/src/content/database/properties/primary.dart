@@ -1,0 +1,3 @@
+class Primary {
+  const Primary();
+}
